@@ -58,7 +58,7 @@ export default {
         },
       },
       backgroundImage: {
-        'honda-click': "url('/honda-click-bg.jpg')",
+        'honda-click': "url('/click.jpg')", // Updated image name
       },
       borderRadius: {
         lg: "var(--radius)",
