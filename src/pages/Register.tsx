@@ -2,8 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
 
 const Register = () => {
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setProfilePic(e.target.files[0]);
+    }
+  };
+
   return (
     <div className="min-h-screen relative">
       <div className="absolute inset-0 bg-honda-click bg-cover bg-center bg-no-repeat" />
@@ -16,6 +26,22 @@ const Register = () => {
           </CardHeader>
           <CardContent>
             <form className="space-y-4">
+              <div className="flex flex-col items-center space-y-4 mb-6">
+                <Avatar className="w-32 h-32">
+                  <AvatarImage src={profilePic ? URL.createObjectURL(profilePic) : undefined} />
+                  <AvatarFallback>User</AvatarFallback>
+                </Avatar>
+                <div className="w-full">
+                  <label className="text-sm font-medium">Profile Picture</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePicChange}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Username</label>
                 <Input placeholder="Choose a username" />
