@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
+import { User } from "lucide-react";
 
 const Register = () => {
   const [profilePic, setProfilePic] = useState<File | null>(null);
@@ -27,9 +28,14 @@ const Register = () => {
           <CardContent>
             <form className="space-y-4">
               <div className="flex flex-col items-center space-y-4 mb-6">
-                <Avatar className="w-32 h-32">
-                  <AvatarImage src={profilePic ? URL.createObjectURL(profilePic) : undefined} />
-                  <AvatarFallback>User</AvatarFallback>
+                <Avatar className="w-32 h-32 border-2 border-honda-red">
+                  {profilePic ? (
+                    <AvatarImage src={URL.createObjectURL(profilePic)} />
+                  ) : (
+                    <AvatarFallback className="bg-honda-dark text-white">
+                      <User className="w-16 h-16" />
+                    </AvatarFallback>
+                  )}
                 </Avatar>
                 <div className="w-full">
                   <label className="text-sm font-medium">Profile Picture</label>
