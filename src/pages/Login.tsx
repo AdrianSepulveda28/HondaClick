@@ -1,9 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Add your login logic here
+    navigate('/home'); // Redirect to home after login
+  };
+
   return (
     <div className="min-h-screen relative">
       <div className="absolute inset-0 bg-honda-click bg-cover bg-center bg-no-repeat" />
@@ -15,7 +23,7 @@ const Login = () => {
             <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Email</label>
                 <Input type="email" placeholder="Enter your email" />
@@ -24,7 +32,7 @@ const Login = () => {
                 <label className="text-sm font-medium">Password</label>
                 <Input type="password" placeholder="Enter your password" />
               </div>
-              <Button className="w-full bg-honda-red hover:bg-red-600 text-white">
+              <Button type="submit" className="w-full bg-honda-red hover:bg-red-600 text-white">
                 Login
               </Button>
               <p className="text-center text-sm">
