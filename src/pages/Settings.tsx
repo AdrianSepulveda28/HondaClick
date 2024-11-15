@@ -3,13 +3,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 const Settings = () => {
+  const navigate = useNavigate();
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profilePic, setProfilePic] = useState<File | null>(null);
+
+  const handleLogout = () => {
+    // Add logout logic here
+    navigate('/');
+  };
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -27,11 +34,31 @@ const Settings = () => {
       <nav className="bg-white/10 backdrop-blur-md p-4">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Settings</h1>
-          <Link to="/dashboard">
-            <Button variant="ghost" className="text-white hover:text-honda-red">
-              Back to Dashboard
+          <div className="flex gap-4">
+            <Link to="/home">
+              <Button variant="ghost" className="text-white hover:text-honda-red">
+                Home
+              </Button>
+            </Link>
+            <Link to="/dashboard">
+              <Button variant="ghost" className="text-white hover:text-honda-red">
+                Dashboard
+              </Button>
+            </Link>
+            <Link to="/announcement">
+              <Button variant="ghost" className="text-white hover:text-honda-red">
+                Announcements
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              className="text-white hover:text-honda-red"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-5 h-5 mr-2" />
+              Logout
             </Button>
-          </Link>
+          </div>
         </div>
       </nav>
 

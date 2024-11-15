@@ -21,6 +21,11 @@ const Dashboard = () => {
                 Home
               </Button>
             </Link>
+            <Link to="/announcement">
+              <Button variant="ghost" className="text-white hover:text-honda-red">
+                Announcements
+              </Button>
+            </Link>
             <Link to="/settings">
               <Button variant="ghost" className="text-white hover:text-honda-red">
                 <Settings className="w-5 h-5 mr-2" />

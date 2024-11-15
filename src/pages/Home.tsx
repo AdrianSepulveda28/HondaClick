@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Settings, LogOut } from "lucide-react";
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Add logout logic here
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-honda-dark">
       <nav className="bg-white/10 backdrop-blur-md p-4">
@@ -18,6 +26,20 @@ const Home = () => {
                 Announcements
               </Button>
             </Link>
+            <Link to="/settings">
+              <Button variant="ghost" className="text-white hover:text-honda-red">
+                <Settings className="w-5 h-5 mr-2" />
+                Settings
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              className="text-white hover:text-honda-red"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-5 h-5 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
       </nav>
