@@ -10,7 +10,10 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Announcement from "./pages/Announcement";
 import Settings from "./pages/Settings";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminHome from "./pages/admin/AdminHome";
+import AdminAnnouncement from "./pages/admin/AdminAnnouncement";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -21,14 +24,22 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* User routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/announcement" element={<Announcement />} />
           <Route path="/settings" element={<Settings />} />
+          
+          {/* Admin routes */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/announcement" element={<AdminAnnouncement />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
