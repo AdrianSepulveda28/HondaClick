@@ -3,6 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { Settings, LogOut, Plus, Edit2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface Announcement {
   id: string;
@@ -17,8 +26,15 @@ const AdminAnnouncement = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([
     { id: '1', title: 'Welcome', content: 'Welcome to Honda Click Hub', date: '2024-02-20' },
   ]);
+  const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '' });
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleLogout = () => {
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
     navigate('/');
   };
 
@@ -28,6 +44,41 @@ const AdminAnnouncement = () => {
       title: "Announcement Deleted",
       description: "The announcement has been deleted successfully.",
     });
+  };
+
+  const handleEdit = (announcement: Announcement) => {
+    setEditingAnnouncement(announcement);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = () => {
+    if (editingAnnouncement) {
+      setAnnouncements(announcements.map(a => 
+        a.id === editingAnnouncement.id ? editingAnnouncement : a
+      ));
+      setIsEditDialogOpen(false);
+      setEditingAnnouncement(null);
+      toast({
+        title: "Announcement Updated",
+        description: "The announcement has been updated successfully.",
+      });
+    }
+  };
+
+  const handleNewAnnouncement = () => {
+    if (newAnnouncement.title && newAnnouncement.content) {
+      const announcement = {
+        id: Date.now().toString(),
+        ...newAnnouncement,
+        date: new Date().toISOString().split('T')[0]
+      };
+      setAnnouncements([announcement, ...announcements]);
+      setNewAnnouncement({ title: '', content: '' });
+      toast({
+        title: "Announcement Created",
+        description: "New announcement has been created successfully.",
+      });
+    }
   };
 
   return (
@@ -66,10 +117,43 @@ const AdminAnnouncement = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-end mb-6">
-          <Button className="bg-honda-red hover:bg-red-600">
-            <Plus className="w-4 h-4 mr-2" />
-            New Announcement
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="bg-honda-red hover:bg-red-600">
+                <Plus className="w-4 h-4 mr-2" />
+                New Announcement
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Announcement</DialogTitle>
+                <DialogDescription>
+                  Create a new announcement for all users.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <Input
+                  placeholder="Title"
+                  value={newAnnouncement.title}
+                  onChange={(e) => setNewAnnouncement(prev => ({
+                    ...prev,
+                    title: e.target.value
+                  }))}
+                />
+                <Input
+                  placeholder="Content"
+                  value={newAnnouncement.content}
+                  onChange={(e) => setNewAnnouncement(prev => ({
+                    ...prev,
+                    content: e.target.value
+                  }))}
+                />
+                <Button onClick={handleNewAnnouncement} className="w-full">
+                  Create Announcement
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
         
         <div className="space-y-6">
@@ -82,7 +166,11 @@ const AdminAnnouncement = () => {
                   <p className="text-sm text-gray-400 mt-2">Posted: {announcement.date}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="ghost" className="h-8 w-8 p-0">
+                  <Button 
+                    variant="ghost" 
+                    className="h-8 w-8 p-0"
+                    onClick={() => handleEdit(announcement)}
+                  >
                     <Edit2 className="h-4 w-4" />
                   </Button>
                   <Button
@@ -98,6 +186,36 @@ const AdminAnnouncement = () => {
           ))}
         </div>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Announcement</DialogTitle>
+            <DialogDescription>
+              Make changes to the announcement.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              placeholder="Title"
+              value={editingAnnouncement?.title || ''}
+              onChange={(e) => setEditingAnnouncement(prev => 
+                prev ? { ...prev, title: e.target.value } : null
+              )}
+            />
+            <Input
+              placeholder="Content"
+              value={editingAnnouncement?.content || ''}
+              onChange={(e) => setEditingAnnouncement(prev => 
+                prev ? { ...prev, content: e.target.value } : null
+              )}
+            />
+            <Button onClick={handleEditSubmit} className="w-full">
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
