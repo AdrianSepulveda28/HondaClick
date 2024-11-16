@@ -1,84 +1,103 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Settings, LogOut, Plus, Edit2, Trash2 } from "lucide-react";
+import { Settings, LogOut, Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-
-interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-}
+import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
+import { AnnouncementDialog } from "@/components/announcements/AnnouncementDialog";
+import { type Announcement } from "@/types/announcement";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const AdminAnnouncement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [announcements, setAnnouncements] = useState<Announcement[]>([
-    { id: '1', title: 'Welcome', content: 'Welcome to Honda Click Hub', date: '2024-02-20' },
-  ]);
-  const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '' });
-  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentAnnouncement, setCurrentAnnouncement] = useState<Partial<Announcement>>({});
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
 
-  const handleLogout = () => {
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out.",
-    });
-    navigate('/');
-  };
+  const { data: announcements = [] } = useQuery<Announcement[]>({
+    queryKey: ['announcements'],
+    queryFn: async () => {
+      // TODO: Replace with actual API call when backend is implemented
+      return [
+        { id: '1', title: 'Welcome', content: 'Welcome to Honda Click Hub', date: '2024-02-20' },
+      ];
+    },
+  });
 
-  const handleDelete = (id: string) => {
-    setAnnouncements(announcements.filter(a => a.id !== id));
-    toast({
-      title: "Announcement Deleted",
-      description: "The announcement has been deleted successfully.",
-    });
+  const createMutation = useMutation({
+    mutationFn: async (newAnnouncement: Omit<Announcement, 'id'>) => {
+      // TODO: Replace with actual API call
+      return { id: Date.now().toString(), ...newAnnouncement };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
+      toast({
+        title: "Success",
+        description: "Announcement created successfully",
+      });
+      setIsDialogOpen(false);
+      setCurrentAnnouncement({});
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (announcement: Announcement) => {
+      // TODO: Replace with actual API call
+      return announcement;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
+      toast({
+        title: "Success",
+        description: "Announcement updated successfully",
+      });
+      setIsDialogOpen(false);
+      setCurrentAnnouncement({});
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      // TODO: Replace with actual API call
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
+      toast({
+        title: "Success",
+        description: "Announcement deleted successfully",
+      });
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!currentAnnouncement.title || !currentAnnouncement.content) return;
+
+    if (dialogMode === 'create') {
+      createMutation.mutate({
+        title: currentAnnouncement.title,
+        content: currentAnnouncement.content,
+        date: new Date().toISOString().split('T')[0],
+      });
+    } else {
+      updateMutation.mutate(currentAnnouncement as Announcement);
+    }
   };
 
   const handleEdit = (announcement: Announcement) => {
-    setEditingAnnouncement(announcement);
-    setIsEditDialogOpen(true);
+    setCurrentAnnouncement(announcement);
+    setDialogMode('edit');
+    setIsDialogOpen(true);
   };
 
-  const handleEditSubmit = () => {
-    if (editingAnnouncement) {
-      setAnnouncements(announcements.map(a => 
-        a.id === editingAnnouncement.id ? editingAnnouncement : a
-      ));
-      setIsEditDialogOpen(false);
-      setEditingAnnouncement(null);
-      toast({
-        title: "Announcement Updated",
-        description: "The announcement has been updated successfully.",
-      });
-    }
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id);
   };
 
-  const handleNewAnnouncement = () => {
-    if (newAnnouncement.title && newAnnouncement.content) {
-      const announcement = {
-        id: Date.now().toString(),
-        ...newAnnouncement,
-        date: new Date().toISOString().split('T')[0]
-      };
-      setAnnouncements([announcement, ...announcements]);
-      setNewAnnouncement({ title: '', content: '' });
-      toast({
-        title: "Announcement Created",
-        description: "New announcement has been created successfully.",
-      });
-    }
+  const handleLogout = () => {
+    navigate('/');
   };
 
   return (
@@ -117,105 +136,40 @@ const AdminAnnouncement = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-end mb-6">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="bg-honda-red hover:bg-red-600">
-                <Plus className="w-4 h-4 mr-2" />
-                New Announcement
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Announcement</DialogTitle>
-                <DialogDescription>
-                  Create a new announcement for all users.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <Input
-                  placeholder="Title"
-                  value={newAnnouncement.title}
-                  onChange={(e) => setNewAnnouncement(prev => ({
-                    ...prev,
-                    title: e.target.value
-                  }))}
-                />
-                <Input
-                  placeholder="Content"
-                  value={newAnnouncement.content}
-                  onChange={(e) => setNewAnnouncement(prev => ({
-                    ...prev,
-                    content: e.target.value
-                  }))}
-                />
-                <Button onClick={handleNewAnnouncement} className="w-full">
-                  Create Announcement
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button
+            className="bg-honda-red hover:bg-red-600"
+            onClick={() => {
+              setDialogMode('create');
+              setCurrentAnnouncement({});
+              setIsDialogOpen(true);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Announcement
+          </Button>
         </div>
         
         <div className="space-y-6">
           {announcements.map(announcement => (
-            <div key={announcement.id} className="bg-white/10 backdrop-blur p-6 rounded-lg">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-bold text-white mb-2">{announcement.title}</h2>
-                  <p className="text-gray-300">{announcement.content}</p>
-                  <p className="text-sm text-gray-400 mt-2">Posted: {announcement.date}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="ghost" 
-                    className="h-8 w-8 p-0"
-                    onClick={() => handleEdit(announcement)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                    onClick={() => handleDelete(announcement.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <AnnouncementCard
+              key={announcement.id}
+              announcement={announcement}
+              isAdmin
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       </div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Announcement</DialogTitle>
-            <DialogDescription>
-              Make changes to the announcement.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <Input
-              placeholder="Title"
-              value={editingAnnouncement?.title || ''}
-              onChange={(e) => setEditingAnnouncement(prev => 
-                prev ? { ...prev, title: e.target.value } : null
-              )}
-            />
-            <Input
-              placeholder="Content"
-              value={editingAnnouncement?.content || ''}
-              onChange={(e) => setEditingAnnouncement(prev => 
-                prev ? { ...prev, content: e.target.value } : null
-              )}
-            />
-            <Button onClick={handleEditSubmit} className="w-full">
-              Save Changes
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AnnouncementDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        announcement={currentAnnouncement}
+        setAnnouncement={setCurrentAnnouncement}
+        onSubmit={handleSubmit}
+        mode={dialogMode}
+      />
     </div>
   );
 };

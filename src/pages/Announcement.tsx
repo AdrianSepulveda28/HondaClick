@@ -1,12 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Settings, LogOut } from "lucide-react";
+import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
+import { useQuery } from "@tanstack/react-query";
+import { type Announcement } from "@/types/announcement";
 
 const Announcement = () => {
   const navigate = useNavigate();
 
+  const { data: announcements = [] } = useQuery<Announcement[]>({
+    queryKey: ['announcements'],
+    queryFn: async () => {
+      // TODO: Replace with actual API call when backend is implemented
+      return [
+        { id: '1', title: 'Monthly Meetup', content: 'Join us for our monthly meetup this Saturday at Central Park.', date: '2024-02-20' },
+        { id: '2', title: 'Maintenance Tips', content: 'Check out our new guide on maintaining your Honda Click.', date: '2024-02-18' },
+      ];
+    },
+  });
+
   const handleLogout = () => {
-    // Add logout logic here
     navigate('/');
   };
 
@@ -46,21 +59,12 @@ const Announcement = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
-          <div className="bg-white/10 backdrop-blur p-6 rounded-lg">
-            <h2 className="text-xl font-bold text-white mb-2">Monthly Meetup</h2>
-            <p className="text-gray-300">
-              Join us for our monthly meetup this Saturday at Central Park.
-            </p>
-            <p className="text-sm text-gray-400 mt-2">Posted: 2 days ago</p>
-          </div>
-          
-          <div className="bg-white/10 backdrop-blur p-6 rounded-lg">
-            <h2 className="text-xl font-bold text-white mb-2">Maintenance Tips</h2>
-            <p className="text-gray-300">
-              Check out our new guide on maintaining your Honda Click.
-            </p>
-            <p className="text-sm text-gray-400 mt-2">Posted: 5 days ago</p>
-          </div>
+          {announcements.map(announcement => (
+            <AnnouncementCard
+              key={announcement.id}
+              announcement={announcement}
+            />
+          ))}
         </div>
       </div>
     </div>
