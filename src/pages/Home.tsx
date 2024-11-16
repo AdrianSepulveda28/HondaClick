@@ -1,37 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Settings, LogOut } from "lucide-react";
+import { MobileNav } from "@/components/MobileNav";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Add logout logic here
     navigate('/');
   };
+
+  const navLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/announcement", label: "Announcements" },
+    { href: "/settings", label: "Settings" },
+  ];
 
   return (
     <div className="min-h-screen bg-honda-dark">
       <nav className="bg-white/10 backdrop-blur-md p-4">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">Honda Click Hub</h1>
-          <div className="flex gap-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" className="text-white hover:text-honda-red">
-                Dashboard
-              </Button>
-            </Link>
-            <Link to="/announcement">
-              <Button variant="ghost" className="text-white hover:text-honda-red">
-                Announcements
-              </Button>
-            </Link>
-            <Link to="/settings">
-              <Button variant="ghost" className="text-white hover:text-honda-red">
-                <Settings className="w-5 h-5 mr-2" />
-                Settings
-              </Button>
-            </Link>
+          <div className="hidden md:flex gap-4">
+            {navLinks.map((link) => (
+              <Link key={link.href} to={link.href}>
+                <Button variant="ghost" className="text-white hover:text-honda-red">
+                  {link.label}
+                </Button>
+              </Link>
+            ))}
             <Button 
               variant="ghost" 
               className="text-white hover:text-honda-red"
@@ -41,6 +38,7 @@ const Home = () => {
               Logout
             </Button>
           </div>
+          <MobileNav links={navLinks} />
         </div>
       </nav>
       

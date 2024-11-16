@@ -15,7 +15,6 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For demo purposes, using hardcoded admin credentials
     if (isAdmin) {
       if (email === "admin@honda.com" && password === "admin123") {
         toast({
@@ -31,7 +30,6 @@ const Login = () => {
         });
       }
     } else {
-      // For demo purposes, allow any non-admin login
       toast({
         title: "User Login Successful",
         description: "Welcome back!",
@@ -46,7 +44,7 @@ const Login = () => {
       <div className="absolute inset-0 bg-black/60" />
       
       <div className="relative z-10 container mx-auto px-4 h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md bg-white/90 backdrop-blur">
+        <Card className="w-full max-w-md mx-4 bg-white/90 backdrop-blur">
           <CardHeader>
             <CardTitle className="text-2xl text-center">
               {isAdmin ? "Admin Login" : "User Login"}
@@ -61,6 +59,7 @@ const Login = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="w-full"
                 />
               </div>
               <div className="space-y-2">
@@ -70,6 +69,7 @@ const Login = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="w-full"
                 />
               </div>
               <div className="flex items-center space-x-2">
