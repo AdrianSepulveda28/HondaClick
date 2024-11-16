@@ -4,29 +4,49 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Temporary login logic until backend is implemented
-    if (username === "admin") {
-      toast({
-        title: "Admin Login Successful",
-        description: "Welcome back, Admin!",
+    setIsLoading(true);
+
+    try {
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({
+        email: `${username}@honda.click`, // Using email format required by Supabase
+        password,
       });
-      navigate('/admin');
-    } else {
+
+      if (error) throw error;
+
+      // Check if user is admin (you'll need to set this in your user metadata)
+      if (user?.user_metadata?.role === 'admin') {
+        toast({
+          title: "Admin Login Successful",
+          description: "Welcome back, Admin!",
+        });
+        navigate('/admin');
+      } else {
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        navigate('/home');
+      }
+    } catch (error: any) {
       toast({
-        title: "User Login Successful",
-        description: "Welcome back!",
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive",
       });
-      navigate('/home');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -50,6 +70,7 @@ const Login = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -60,10 +81,15 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </div>
-              <Button type="submit" className="w-full bg-honda-red hover:bg-red-600 text-white">
-                Login
+              <Button 
+                type="submit" 
+                className="w-full bg-honda-red hover:bg-red-600 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
               <p className="text-center text-sm">
                 Don't have an account?{" "}
